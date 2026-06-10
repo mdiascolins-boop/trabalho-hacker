@@ -15,6 +15,7 @@
         .btn-hack { background: #cc0000; color: white; }
         .btn-warn { background: #ff9900; color: black; }
         .btn-reset { background: #555; color: white; }
+        .qr-box { background: white; padding: 15px; display: inline-block; margin-top: 15px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -24,6 +25,13 @@
     <div class="card">
         <div id="status-conexao" class="status offline">AGUARDANDO LEITURA DO QR CODE...</div>
         
+        <!-- QR CODE SEGURO GERADO AUTOMATICAMENTE -->
+        <h3>Mostre este QR Code para a Professora:</h3>
+        <div class="qr-box">
+            <img id="qr-image" src="" alt="QR Code do Trabalho">
+        </div>
+        <br><br>
+
         <h3>Selecione uma Ação para Enviar ao Alvo:</h3>
         <button class="btn-redirect" onclick="enviarComando('google')">🌐 1. Redirecionar para o Google</button>
         <button class="btn-redirect" onclick="enviarComando('youtube')">📺 2. Redirecionar para o YouTube</button>
@@ -36,6 +44,10 @@
     <script src="https://gstatic.com"></script>
 
     <script>
+        // Cria o link correto de forma automática usando uma API segura de QR Code
+        const linkDaProfessora = "https://github.io";
+        document.getElementById('qr-image').src = "https://qrserver.com" + encodeURIComponent(linkDaProfessora);
+
         const firebaseConfig = { databaseURL: "https://firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
