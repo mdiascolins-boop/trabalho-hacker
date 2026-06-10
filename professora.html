@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aguardando Conexão...</title>
+    <style>
+        body { background-color: #111; color: #fff; font-family: monospace; text-align: center; padding-top: 20%; overflow: hidden; margin: 0; }
+        #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: none; }
+        .conteudo { z-index: 10; position: relative; }
+        .alerta-fake { display: none; font-size: 24px; color: red; font-weight: bold; border: 3px solid red; padding: 20px; background: rgba(0,0,0,0.9); margin: 20px auto; width: 80%; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="conteudo" id="tela-inicial">
+        <h1>🔄 Sincronizando Dispositivo...</h1>
+        <p>Aguardando comandos do painel de controle do aluno.</p>
+    </div>
+
+    <div class="conteudo" id="alerta-box" class="alerta-fake">
+        🚨 HACK FAKER: SEUS DADOS FORAM COMPARTILHADOS! 🚨
+    </div>
+
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        database.ref('status').set({ conectado: true, timestamp: Date.now() });
+
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        let matrixInterval;
+
+        function iniciarMatrix() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const nums = "0123456789"; const alphabet = nums.split(""); const fontSize = 16;
+            const columns = canvas.width / fontSize; const rainDrops = Array.from({ length: columns }).fill(1);
+            
+            matrixInterval = setInterval(() => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#0F0'; ctx.font = fontSize + 'px monospace';
+                for (let i = 0; i < rainDrops.length; i++) {
+                    const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+                    ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                    if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) { rainDrops[i] = 0; }
+                    rainDrops[i]++;
+                }
+            }, 30);
+        }
+
+        database.ref('comando').on('value', (snapshot) => {
+            const acao = snapshot.val();
+            if (!acao) return;
+
+            if (acao === 'google') {
+                window.location.href = 'https://google.com';
+            } else if (acao === 'youtube') {
+                window.location.href = 'https://youtube.com';
+            } else if (acao === 'hack') {
+                document.getElementById('tela-inicial').style.display = 'none';
+                canvas.style.display = 'block';
+                document.getElementById('alerta-box').style.display = 'block';
+                iniciarMatrix();
+            } else if (acao === 'alerta') {
+                alert('⚠️ AVISO DO SISTEMA: Atividade incomum detectada neste navegador.');
+            } else if (acao === 'reset') {
+                clearInterval(matrixInterval);
+                canvas.style.display = 'none';
+                document.getElementById('alerta-box').style.display = 'none';
+                document.getElementById('tela-inicial').style.display = 'block';
+                document.body.style.backgroundColor = '#111';
+            }
+        });
+    </script>
+</body>
+</html>
